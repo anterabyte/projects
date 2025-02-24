@@ -1,0 +1,13 @@
+name: Take-Action
+
+on:
+  push:
+    branch:
+      - main
+
+job:
+  create-action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Just run
+        run: echo "Hello World"
