@@ -1,0 +1,70 @@
+{{define "content"}}
+<div class="notes-container">
+    <div class="note-form">
+        <h2>Create New Note</h2>
+        <form id="noteForm">
+            <input type="text" name="title" placeholder="Note Title" required>
+            <textarea name="content" placeholder="Note Content" required></textarea>
+            <button type="submit">Create Note</button>
+        </form>
+    </div>
+    
+    <div class="notes-list">
+        <h2>Your Notes</h2>
+        <div id="notesList">
+            <!-- Notes will be inserted here via JavaScript -->
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('noteForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const note = {
+        title: formData.get('title'),
+        content: formData.get('content')
+    };
+
+    try {
+        const response = await fetch('/api/notes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(note)
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            // Add note to the list
+            displayNote(result);
+            e.target.reset();
+        }
+    } catch (error) {
+        console.error('Error creating note:', error);
+    }
+});
+
+function displayNote(note) {
+    const notesList = document.getElementById('notesList');
+    const noteElement = document.createElement('div');
+    noteElement.className = 'note';
+    noteElement.innerHTML = `
+        <h3>${note.title}</h3>
+        <p>${note.content}</p>
+        <div class="note-summary">
+            <h4>AI Summary</h4>
+            <p>${note.summary}</p>
+        </div>
+        <div class="note-suggestions">
+            <h4>Suggested Topics</h4>
+            <ul>
+                ${note.suggestions.map(s => `<li>${s}</li>`).join('')}
+            </ul>
+        </div>
+    `;
+    notesList.prepend(noteElement);
+}
+</script>
+{{end}}
